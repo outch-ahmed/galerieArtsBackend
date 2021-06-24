@@ -14,6 +14,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import fr.aston.sqli.projet.canadagalerie.authentication.ApplicationUserService;
 import fr.aston.sqli.projet.canadagalerie.jwt.JwtConfig;
@@ -69,6 +72,27 @@ public class SpringBootSrcurityConfig extends WebSecurityConfigurerAdapter {
 		provider.setPasswordEncoder(passwordEncoder);
 		provider.setUserDetailsService(applicationUserService);
 		return provider;
+	}
+	
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		SpringBootSrcurityConfig.LOG
+	.debug("AbstractSpringSecurityConfiguration - Loading CORS definition ...");
+	var source = new UrlBasedCorsConfigurationSource();
+	var config = new CorsConfiguration();
+	config.setAllowCredentials(true);
+	config.addAllowedOriginPattern("*");
+	config.addAllowedHeader("*");
+	config.addAllowedMethod("*");
+
+	config.addExposedHeader("WWW-Authenticate");
+	config.addExposedHeader("Access-Control-Allow-Origin");
+	config.addExposedHeader("Access-Control-Allow-Headers");
+	// In order to see the token for Angular
+	config.addExposedHeader(jwtConfig.getTokenPrefix());
+
+	source.registerCorsConfiguration("/**", config);
+	return source;
 	}
 
 }
